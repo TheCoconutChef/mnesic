@@ -1,0 +1,10 @@
+function(add_example target_name source)
+  add_executable(${target_name})
+  target_sources(${target_name} PRIVATE ${source})
+  target_link_libraries(${target_name} PRIVATE mnesic)
+endfunction()
+
+add_example(ex_free_function memoize_free_function.cpp)
+add_example(ex_recursive_free_function memoize_recursive_free_function.cpp)
+add_example(ex_lambda memoize_lambda.cpp)
+add_example(ex_functor memoize_functor.cpp)
