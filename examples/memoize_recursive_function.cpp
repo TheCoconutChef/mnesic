@@ -1,6 +1,5 @@
-#include <fmt/base.h>
-
 #include "mnesic/memoized.hpp"
+#include <fmt/base.h>
 
 int naive_fib_call_count = 0;
 long long int fib_naive(long long int n)
@@ -24,13 +23,13 @@ struct MemoizedFib
 int main()
 {
   auto fib = MemoizedFib();
-  // Call to recursively defined free function
   for (auto n = 20LL; n <= 30LL; ++n)
   {
-    fmt::println("F_{} = {}", n, fib(n));
+    fmt::println("MEM_F_{} = {}", n, fib(n));
   }
-  fmt::println("F_10 = {}", fib_naive(10));
   fmt::println("mem_fib_call_count: {}", fib.call_count);
+
+  fmt::println("NAIVE_F_10 = {}", fib_naive(10));
   fmt::println("naive_fib_call_count: {}", naive_fib_call_count);
 
   return 0;

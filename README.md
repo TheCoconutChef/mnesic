@@ -22,19 +22,24 @@ xmake
 #### Memoize a free function
 
 ```c++
-int foo(int a, int b) {
-  std::cout << "Foo is called with " << a << ", " << b << "\n";
+#include "mnesic/memoized.hpp"
+#include <fmt/base.h>
+
+int foo(int a, int b)
+{
+  fmt::println("Foo is called with {}, {}", a, b);
   return a + b;
 }
 
-int main() {
+int main()
+{
+  // Memoize free function
   auto memfoo = Memoized{foo};
+  auto a      = memfoo(10, 5);
+  auto b      = memfoo(10, 5);
+  auto c      = memfoo(20, 0);
 
-  auto a = memfoo(10, 5);
-  auto b = memfoo(10, 5);
-  auto c = memfoo(20, 0);
-
-  std::cout << "Result: " << a + b + c << "\n";
+  return 0;
 }
 ```
 Output:
@@ -44,83 +49,85 @@ Foo is called with 20, 0
 Result: 50
 ```
 
-#### Memoize a recursive free function
+#### Memoize a recursive function
 
 ```c++
-// Inspired by:
-// https://stackoverflow.com/a/47457552
-//
+#include <fmt/base.h>
+#include "mnesic/memoized.hpp"
 
-// in the header
-int mem_fib_call_count = 0;
-long long int fib(long long int n); 
-
-// in the cpp
-auto memoized = Memoized{fib};
-long long int fib(long long int n) {
-  mem_fib_call_count++:
-  return n <= 1 ? n : memoized(n - 1LL) + memoized(n - 2LL);
-}
-
-int main() {
-  for (auto n = 20LL; n <= 30LL; ++n)
-    std::cout << "F_" << n << " = " << fib(n) << "\n";
-
-  std::cout << "mem_fib_call_count: " << mem_fib_call_count << "\n";
-  return 0;
-}
-```
-Output:
-```
-F_20 = 6765
-F_21 = 10946
-F_22 = 17711
-F_23 = 28657
-F_24 = 46368
-F_25 = 75025
-F_26 = 121393
-F_27 = 196418
-F_28 = 317811
-F_29 = 514229
-F_30 = 832040
-mem_fib_call_count: 41
-```
-Compared to a naive fib implementation:
-```c++
 int naive_fib_call_count = 0;
-long long int fib_naive(long long int n) {
+long long int fib_naive(long long int n)
+{
   naive_fib_call_count++;
   return n <= 1 ? n : fib_naive(n - 1) + fib_naive(n - 2);
 }
 
-int main() {
-  std::cout << "F_10 = " << fib_naive(10) << "\n";
-  std::cout << "naive_fib_call_count: " << "\n";
+struct MemoizedFib
+{
+  long long int operator()(long long int n)
+  {
+    call_count++;
+    return n <= 1 ? n : memoized(n - 2LL) + memoized(n - 1LL);
+  }
+
+  int call_count = 0;
+  Memoized<MemoizedFib &> memoized{*this};
+};
+// But something like this can also be done:
+// https://stackoverflow.com/a/47457552
+
+int main()
+{
+  auto fib = MemoizedFib();
+  for (auto n = 20LL; n <= 30LL; ++n)
+  {
+    fmt::println("MEM_F_{} = {}", n, fib(n));
+  }
+  fmt::println("mem_fib_call_count: {}", fib.call_count);
+
+  fmt::println("NAIVE_F_10 = {}", fib_naive(10));
+  fmt::println("naive_fib_call_count: {}", naive_fib_call_count);
+
   return 0;
-}
-```
+}```
 Output:
 ```
-F_10 = 55
+MEM_F_20 = 6765
+MEM_F_21 = 10946
+MEM_F_22 = 17711
+MEM_F_23 = 28657
+MEM_F_24 = 46368
+MEM_F_25 = 75025
+MEM_F_26 = 121393
+MEM_F_27 = 196418
+MEM_F_28 = 317811
+MEM_F_29 = 514229
+MEM_F_30 = 832040
+mem_fib_call_count: 41
+NAIVE_F_10 = 55
 naive_fib_call_count: 177
 ```
 
 #### Memoize a lambda
 
 ```c++
-int main() {
+#include "mnesic/memoized.hpp"
+#include <fmt/base.h>
+
+int main()
+{
+  // Memoize a lambda
   int call_count = 0;
-  auto f = [&call_count](const std::string& user) { 
+  auto f         = [&call_count](const std::string &user) -> std::string
+  {
     call_count++;
-    return "Hello " + user + "!"; 
+    return "Hello " + user + "!";
   };
   auto f_mem = Memoized{f};
-
-  std::cout << f_mem("Johnny") << "\n";
-  std::cout << f_mem("Stacey") << "\n";
-  std::cout << f_mem("Johnny") << "\n";
-
-  std::cout << "call_count: " << call_count << "\n";
+  fmt::println("{}", f_mem(std::string("Johnny")));
+  fmt::println("{}", f_mem(std::string("Stacey")));
+  fmt::println("{}", f_mem(std::string("Johnny")));
+  fmt::println("call_count {}", call_count);
 
   return 0;
 }
@@ -130,34 +137,5 @@ Output:
 Hello Johnny!
 Hello Stacey!
 Hello Johnny!
-call_count: 2
-```
-
-#### Memoize your own functor
-
-```c++
-struct MyFunctor {
-  std::pair<int, int> operator()(const std::string &str) const {
-    call_count++;
-    return std::make_pair(str.at(0), str.at(1));
-  }
-  int mutable call_count{0};
-};
-
-inf main() {
-  auto my_functor = MyFunctor{};
-  auto memoized_functor = Memoized{my_functor};
-  std::cout << memoized_functor("abc").first << ", "
-            << memoized_functor("abc").second << "\n";
-  std::cout << memoized_functor("efg").first << ", "
-            << memoized_functor("efg").second << "\n";
-  std::cout << "call_count: " << my_functor.call_count << "\n";
-  return 0;
-}
-```
-Output:
-```
-97, 98
-101, 102
-call_count: 2
+call_count 2
 ```

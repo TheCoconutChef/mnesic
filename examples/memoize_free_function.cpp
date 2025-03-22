@@ -1,6 +1,5 @@
-#include <fmt/base.h>
-
 #include "mnesic/memoized.hpp"
+#include <fmt/base.h>
 
 int foo(int a, int b)
 {
