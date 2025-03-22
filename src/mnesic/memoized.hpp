@@ -15,9 +15,6 @@ template <typename Fn> class Memoized
   using fn_t     = std::remove_cvref_t<Fn>;
   using return_t = boost::callable_traits::return_type_t<fn_t>;
 
-  // TODO some other kind of storage policy
-  //
-  // What if we have const T&? What if we have T&&? What about just T?
   Fn fn;
 
   // TODO replace by caching policy
