@@ -6,12 +6,12 @@
 
 struct MyFunctor
 {
-  std::pair<int, int> operator()(const std::string &str) const
+  std::pair<int, int> operator()(const std::string &str)
   {
     call_count++;
     return std::make_pair(str.at(0), str.at(1));
   }
-  int mutable call_count{0};
+  int call_count{0};
 };
 
 int main()
