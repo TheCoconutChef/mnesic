@@ -14,7 +14,6 @@ template <typename Fn> class Memoized
 {
   using fn_t     = std::remove_cvref_t<Fn>;
   using return_t = boost::callable_traits::return_type_t<fn_t>;
-  using args_t   = boost::callable_traits::args_t<fn_t>;
 
   // TODO some other kind of storage policy
   //
@@ -38,6 +37,17 @@ public:
 
   template <typename... Args> return_t operator()(Args &&...args)
   {
+    // TODO: use args_t somehow to make sure that what would be implicitly converted
+    // to U from T in the original function calls also gets implicitly converted in
+    // the cache lookup.
+    //
+    // This is because a call such as mem_f("foo") memoizing a call f(const std::string&)
+    // is gonna be interpreted as a const char* arg which isn't hashable whereas std::string
+    // is. Hence mem_f won't be callable in the same manner as f, which breaks expectations.
+    //
+    // the call to args_t
+    //    using args_t   = boost::callable_traits::args_t<fn_t>;
+
     const auto &h       = detail::pack_hash{}(std::forward<Args>(args)...);
     const auto &val_opt = cache.safe_get(h);
 

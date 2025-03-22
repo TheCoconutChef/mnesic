@@ -1,10 +1,10 @@
-#include <iostream>
+#include <fmt/base.h>
 
 #include "mnesic/memoized.hpp"
 
 int foo(int a, int b)
 {
-  std::cout << "Foo is called with " << a << ", " << b << "\n";
+  fmt::println("Foo is called with {}, {}", a, b);
   return a + b;
 }
 

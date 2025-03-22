@@ -1,4 +1,4 @@
-#include <iostream>
+#include <fmt/base.h>
 
 #include "mnesic/memoized.hpp"
 
@@ -23,10 +23,12 @@ int main()
 {
   // Call to recursively defined free function
   for (auto n = 20LL; n <= 30LL; ++n)
-    std::cout << "F_" << n << " = " << fib(n) << "\n";
-  std::cout << "F_10 = " << fib_naive(10) << "\n";
-  std::cout << "mem_fib_call_count: " << fib_call_count << "\n";
-  std::cout << "naive_fib_call_count: " << naive_fib_call_count << "\n";
+  {
+    fmt::println("F_{} = {}", n, fib(n));
+  }
+  fmt::println("F_10 = {}", fib_naive(10));
+  fmt::println("mem_fib_call_count: {}", fib_call_count);
+  fmt::println("naive_fib_call_count: {}", naive_fib_call_count);
 
   return 0;
 }

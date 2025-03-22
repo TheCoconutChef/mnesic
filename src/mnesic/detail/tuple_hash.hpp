@@ -28,7 +28,7 @@ struct hash_box
 
 template <typename T> constexpr hash_box operator&(hash_box seed, const T &v)
 {
-  constexpr auto hasher = std::hash<T>();
+  constexpr auto hasher = std::hash<T>{};
   seed.val ^= hash_box{hasher(v)} + 0x9e3779b9 + (seed.val << 6) + (seed.val >> 2);
   return seed;
 }

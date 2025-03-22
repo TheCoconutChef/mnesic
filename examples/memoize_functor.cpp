@@ -1,7 +1,8 @@
-#include <iostream>
-#include <utility>
-
 #include "mnesic/memoized.hpp"
+#include <fmt/core.h>
+#include <fmt/ranges.h>
+#include <string>
+#include <utility>
 
 struct MyFunctor
 {
@@ -16,11 +17,11 @@ struct MyFunctor
 int main()
 {
   // Memoize any functor
-  auto my_functor       = MyFunctor{};
-  auto memoized_functor = Memoized{my_functor};
-  std::cout << memoized_functor("abc").first << ", " << memoized_functor("abc").second << "\n";
-  std::cout << memoized_functor("efg").first << ", " << memoized_functor("efg").second << "\n";
-  std::cout << "call_count " << my_functor.call_count << "\n";
+  auto my_functor       = MyFunctor();
+  auto memoized_functor = Memoized(my_functor);
+  fmt::println("{}, {}", memoized_functor(std::string("abc")), memoized_functor(std::string("abc")));
+  fmt::println("{}, {}", memoized_functor(std::string("efg")).first, memoized_functor(std::string("efg")).second);
+  fmt::println("call_count {}", my_functor.call_count);
 
   return 0;
 }
