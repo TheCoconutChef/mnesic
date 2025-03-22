@@ -2,23 +2,21 @@
 
 A feature poor but friendly [memoization](https://en.wikipedia.org/wiki/Memoization) class. Basically just a [kata](http://codekata.com/).
 
-The project comes wired with utilities to inspect the signature of functions / functors and a way to hash an argument pack or a tuple.
-
 #### Limitations
 
-- I'm still not dealing with overloaded functions.
+- Still not dealing with overload set.
 - The cache policy is fixed, i.e. lru cache.
 - The hash strategy is fixed.
-- No multi thread support
+- Not thread safe.
 
 ### Quick start
 
-The project uses [CPM](https://github.com/cpm-cmake/CPM.cmake) to pull its dependencies (i.e.[Catch2](https://github.com/catchorg/Catch2)), which means just having [CMake](https://cmake.org/) is enough.
+The project uses [xmake](https://xmake.io/#/?id=build-a-project) to both build and manage dependencies.
 
 ```bash
-mkdir build && cd build
-cmake -DBUILD_EXAMPLES=ON ..
-cmake --build .
+git clone git@github.com:TheCoconutChef/mnesic.git
+cd mnesic
+xmake
 ```
 
 #### Memoize a free function
