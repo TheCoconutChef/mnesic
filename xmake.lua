@@ -22,4 +22,4 @@ add_files("benchmarks/*.cpp")
 add_deps("mnesic")
 add_packages("nanobench")
 
-add_subdirs("examples")
+includes("examples")
