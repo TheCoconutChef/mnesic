@@ -3,7 +3,8 @@
 #include "mnesic/memoized.hpp"
 
 int naive_fib_call_count = 0;
-long long int fib_naive(long long int n) {
+long long int fib_naive(long long int n)
+{
   naive_fib_call_count++;
   return n <= 1 ? n : fib_naive(n - 1) + fib_naive(n - 2);
 }
@@ -11,13 +12,15 @@ long long int fib_naive(long long int n) {
 int fib_call_count = 0;
 long long int fib(long long int n);
 
-auto memoized = Memoized{fib};
-long long int fib(long long int n) {
+auto memoized_fib = Memoized{fib};
+long long int fib(long long int n)
+{
   fib_call_count++;
-  return n <= 1 ? n : memoized(n - 1LL) + memoized(n - 2LL);
+  return n <= 1 ? n : memoized_fib(n - 1LL) + memoized_fib(n - 2LL);
 }
 
-int main() {
+int main()
+{
   // Call to recursively defined free function
   for (auto n = 20LL; n <= 30LL; ++n)
     std::cout << "F_" << n << " = " << fib(n) << "\n";

@@ -2,10 +2,12 @@
 
 #include "mnesic/memoized.hpp"
 
-int main() {
+int main()
+{
   // Memoize a lambda
   int call_count = 0;
-  auto f = [&call_count](const std::string &user) {
+  auto f         = [&call_count](const std::string &user)
+  {
     call_count++;
     return "Hello " + user + "!";
   };
