@@ -133,6 +133,9 @@ Hello Stacey!
 Hello Johnny!
 call_count 2
 ```
+#### Credits
+
+* [lamerman/cpp-lru-cache](https://github.com/lamerman/cpp-lru-cache)
 
 #### Limitations
 
