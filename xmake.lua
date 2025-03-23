@@ -2,13 +2,13 @@ add_rules("mode.debug", "mode.release")
 set_languages("c++23")
 add_rules("plugin.compile_commands.autoupdate", { outputdir = "build" })
 
-add_requires("boost_ut", "boost", "nanobench", "fmt")
+add_requires("boost_ut", "nanobench", "fmt")
 
 target("mnesic")
 set_kind("headeronly")
 add_headerfiles("src/mnesic/*.hpp")
 add_includedirs("src/", { public = true })
-add_packages("boost")
+add_packages("boost_callable_traits")
 
 target("mnesic-tests")
 set_kind("binary")

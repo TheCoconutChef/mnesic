@@ -3,18 +3,50 @@
 
 #include "detail/lru_cache.hpp"
 #include "detail/tuple_hash.hpp"
-#include <boost/callable_traits/return_type.hpp>
-
 #include <cstddef>
 #include <stdexcept>
 #include <type_traits>
 
+namespace detail
+{
+template <typename T, typename = void> struct Return
+{
+};
+
+template <typename Ret, typename... Args> struct Return<Ret(Args...)>
+{
+  using type = Ret;
+};
+
+template <typename Ret, typename... Args> struct Return<Ret (*)(Args...)>
+{
+  using type = Ret;
+};
+
+template <typename Class, typename Ret, typename... Args> struct Return<Ret (Class::*)(Args...)>
+{
+  using type = Ret;
+};
+
+template <typename Class, typename Ret, typename... Args> struct Return<Ret (Class::*)(Args...) const>
+{
+  using type = Ret;
+};
+
+template <typename T> struct Return<T, std::void_t<decltype(&T::operator())>> : Return<decltype(&T::operator())>
+{
+};
+
+template <typename T> using return_t = typename Return<T>::type;
+
+} // namespace detail
+
 template <typename Fn> class Memoized
 {
-  using fn_t     = std::remove_cvref_t<Fn>;
-  using return_t = boost::callable_traits::return_type_t<fn_t>;
-
   Fn fn;
+
+  using fn_t     = std::remove_cvref_t<Fn>;
+  using return_t = detail::return_t<fn_t>;
 
   // TODO replace by caching policy
   lru_cache<std::size_t, return_t> cache{128};
@@ -40,9 +72,6 @@ public:
     // This is because a call such as mem_f("foo") memoizing a call f(const std::string&)
     // is gonna be interpreted as a const char* arg which isn't hashable whereas std::string
     // is. Hence mem_f won't be callable in the same manner as f, which breaks expectations.
-    //
-    // the call to args_t
-    //    using args_t   = boost::callable_traits::args_t<fn_t>;
 
     const auto &h       = detail::pack_hash{}(std::forward<Args>(args)...);
     const auto &val_opt = cache.safe_get(h);

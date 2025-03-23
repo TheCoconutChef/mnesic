@@ -2,16 +2,9 @@
 
 A feature poor but friendly [memoization](https://en.wikipedia.org/wiki/Memoization) class. Basically just a [kata](http://codekata.com/).
 
-#### Limitations
-
-- Still not dealing with overload set.
-- The cache policy is fixed, i.e. lru cache.
-- The hash strategy is fixed.
-- Not thread safe.
-
 ### Quick start
 
-The project uses [xmake](https://xmake.io/#/?id=build-a-project) to both build and manage dependencies.
+The project uses [xmake](https://xmake.io/#/?id=build-a-project) to both build and manage development dependencies.
 
 ```bash
 git clone git@github.com:TheCoconutChef/mnesic.git
@@ -139,3 +132,10 @@ Hello Stacey!
 Hello Johnny!
 call_count 2
 ```
+
+#### Limitations
+
+- Still not dealing with overload set.
+- The cache policy is fixed, i.e. lru cache.
+- The hash strategy is fixed.
+- Not thread safe.
