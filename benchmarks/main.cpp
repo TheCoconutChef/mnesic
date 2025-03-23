@@ -8,15 +8,17 @@ int fib(int n)
   return n < 2 ? n : fib(n - 2) + fib(n - 1);
 }
 
-// TODO: improve this recursive case it's kind of basic
-int fib_call_count = 0;
-long long int fib2(long long int n);
-auto memoized = Memoized(fib2);
-long long int fib2(long long int n)
+struct MemoizedFib
 {
-  fib_call_count++;
-  return n <= 1 ? n : memoized(n - 1LL) + memoized(n - 2LL);
-}
+  long long int operator()(long long int n)
+  {
+    call_count++;
+    return n <= 1 ? n : memoized(n - 2LL) + memoized(n - 1LL);
+  }
+
+  int call_count = 0;
+  Memoized<MemoizedFib &> memoized{*this};
+};
 
 using namespace ankerl;
 
@@ -27,10 +29,10 @@ int main()
   const auto n = 20;
 
   bench.run("memoized fib",
-            []
+            [n] mutable
             {
-              nanobench::doNotOptimizeAway(fib2(n));
-              memoized.clear_cache();
+              auto f = MemoizedFib();
+              nanobench::doNotOptimizeAway(f(n));
             });
   bench.run("naive fib",
             [n]
