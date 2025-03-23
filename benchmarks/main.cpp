@@ -24,20 +24,20 @@ using namespace ankerl;
 
 int main()
 {
-  auto bench = nanobench::Bench().minEpochIterations(70000);
+  auto bench = nanobench::Bench().title("Naive fibonacci vs memoized").minEpochIterations(70000).relative(true);
 
   const auto n = 20;
 
+  bench.run("naive fib",
+            [n]
+            {
+              nanobench::doNotOptimizeAway(fib(n));
+            });
   bench.run("memoized fib",
             [n]() mutable
             {
               auto f = MemoizedFib();
               nanobench::doNotOptimizeAway(f(n));
-            });
-  bench.run("naive fib",
-            [n]
-            {
-              nanobench::doNotOptimizeAway(fib(n));
             });
 
   return 0;
