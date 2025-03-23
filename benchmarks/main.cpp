@@ -29,7 +29,7 @@ int main()
   const auto n = 20;
 
   bench.run("memoized fib",
-            [n] mutable
+            [n]() mutable
             {
               auto f = MemoizedFib();
               nanobench::doNotOptimizeAway(f(n));

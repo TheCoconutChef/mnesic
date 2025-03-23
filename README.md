@@ -1,6 +1,6 @@
 # Mnesic
 
-A feature poor but friendly [memoization](https://en.wikipedia.org/wiki/Memoization) class. Basically just a [kata](http://codekata.com/).
+Dependency free, C++17 [memoization](https://en.wikipedia.org/wiki/Memoization) class. Basically just a [kata](http://codekata.com/).
 
 ### Quick start
 

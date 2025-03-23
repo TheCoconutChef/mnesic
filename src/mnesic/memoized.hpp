@@ -44,7 +44,7 @@ template <typename Fn> class Memoized
 {
   Fn fn;
 
-  using fn_t     = std::remove_cvref_t<Fn>;
+  using fn_t     = std::decay_t<Fn>;
   using return_t = detail::return_t<fn_t>;
 
   // TODO replace by caching policy

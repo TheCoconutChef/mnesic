@@ -38,7 +38,7 @@ struct pack_hash
   template <typename... Ts> constexpr std::size_t operator()(const Ts &...ts) const noexcept
   {
     constexpr auto hasher = std::hash<int>();
-    const auto init       = hash_box(hasher(0));
+    const auto init       = hash_box{.val = hasher(0)};
     return (init & ... & ts);
   }
 };

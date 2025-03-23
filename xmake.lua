@@ -1,6 +1,6 @@
 add_rules("mode.debug", "mode.release")
-set_languages("c++23")
 add_rules("plugin.compile_commands.autoupdate", { outputdir = "build" })
+set_languages("c++17")
 
 add_requires("boost_ut", "nanobench", "fmt")
 
@@ -11,6 +11,7 @@ add_includedirs("src/", { public = true })
 add_packages("boost_callable_traits")
 
 target("mnesic-tests")
+set_languages("c++20") -- for boost_ut
 set_kind("binary")
 add_files("tests/*.cpp")
 add_deps("mnesic")

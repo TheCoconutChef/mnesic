@@ -1,5 +1,6 @@
 #include "mnesic/memoized.hpp"
 #include <boost/ut.hpp>
+#include <numeric>
 #include <ranges>
 
 int fib(int n)
@@ -50,7 +51,7 @@ int main()
   auto foo   = Foo();
   auto mem_f = Memoized(foo);
   auto a     = std::vector<int>(4);
-  std::ranges::iota(a, 0);
+  std::iota(a.begin(), a.end(), 0);
 
   "no negative capacity"_test = [&]
   {
