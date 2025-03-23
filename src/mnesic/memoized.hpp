@@ -1,11 +1,15 @@
 #ifndef _MNESIC_HPP_INCLUDED_
 #define _MNESIC_HPP_INCLUDED_
 
-#include "detail/lru_cache.hpp"
-#include "detail/tuple_hash.hpp"
 #include <cstddef>
+#include <functional>
+#include <list>
+#include <optional>
 #include <stdexcept>
+#include <tuple>
+#include <unordered_map>
 
+// callable traits
 namespace detail
 {
 template <typename T, typename = void> struct Return
@@ -40,6 +44,150 @@ template <typename T> using return_t = typename Return<T>::type;
 
 } // namespace detail
 
+// tuple hash
+namespace detail
+{
+template <typename Fn, typename... Ts> constexpr auto right_fold_map(Fn &&fn, const Ts &...ts)
+{
+  ((std::forward<Fn>(ts)), ...);
+}
+
+template <typename Fn, typename... Ts> constexpr auto tuple_it(Fn fn, const std::tuple<Ts...> &tup)
+{
+  return std::apply(right_fold_map, tup);
+}
+
+struct hash_box
+{
+  std::size_t val = 0;
+
+  constexpr inline operator std::size_t()
+  {
+    return val;
+  }
+};
+
+template <typename T> constexpr hash_box operator&(hash_box seed, const T &v)
+{
+  constexpr auto hasher = std::hash<T>{};
+  seed.val ^= hash_box{hasher(v)} + 0x9e3779b9 + (seed.val << 6) + (seed.val >> 2);
+  return seed;
+}
+
+struct pack_hash
+{
+  template <typename... Ts> constexpr std::size_t operator()(const Ts &...ts) const noexcept
+  {
+    constexpr auto hasher = std::hash<int>();
+    const auto init       = hash_box{.val = hasher(0)};
+    return (init & ... & ts);
+  }
+};
+
+struct tuple_hash
+{
+  template <typename... Ts> constexpr std::size_t operator()(const std::tuple<Ts...> &tup) const noexcept
+  {
+    return std::apply(pack_hash(), tup);
+  }
+};
+} // namespace detail
+
+// Tuple hash std namespace injection
+template <typename... Ts> struct std::hash<std::tuple<Ts...>>
+{
+  constexpr std::size_t operator()(const std::tuple<Ts...> &tup) const noexcept
+  {
+    return detail::tuple_hash()(tup);
+  }
+};
+
+// lru cache
+namespace detail
+{
+template <typename key_t, typename value_t> class lru_cache
+{
+public:
+  using key_value_pair_t = std::pair<key_t, value_t>;
+  using list_iterator_t  = typename std::list<key_value_pair_t>::iterator;
+
+  lru_cache(std::size_t max_size = 128) : _max_size(max_size)
+  {
+  }
+
+  const value_t &put(const key_t &key, const value_t &value)
+  {
+    auto it = _cache_items_map.find(key);
+    _cache_items_list.push_front(key_value_pair_t(key, value));
+    const auto &ref = _cache_items_list.front().second;
+    if (it != _cache_items_map.end())
+    {
+      _cache_items_list.erase(it->second);
+      _cache_items_map.erase(it);
+    }
+    _cache_items_map[key] = _cache_items_list.begin();
+
+    if (_cache_items_map.size() > _max_size)
+    {
+      const auto last = std::prev(_cache_items_list.end());
+      _cache_items_map.erase(last->first);
+      _cache_items_list.pop_back();
+    }
+    return ref;
+  }
+
+  std::optional<std::reference_wrapper<value_t>> safe_get(const key_t &key)
+  {
+    auto it = _cache_items_map.find(key);
+    if (it == _cache_items_map.end())
+      return {};
+
+    _cache_items_list.splice(_cache_items_list.begin(), _cache_items_list, it->second);
+    return it->second->second;
+  }
+  const value_t &get(const key_t &key)
+  {
+    auto it = _cache_items_map.find(key);
+    if (it == _cache_items_map.end())
+    {
+      throw std::range_error("There is no such key in cache");
+    }
+    else
+    {
+      _cache_items_list.splice(_cache_items_list.begin(), _cache_items_list, it->second);
+      return it->second->second;
+    }
+  }
+
+  bool exists(const key_t &key) const
+  {
+    return _cache_items_map.find(key) != _cache_items_map.end();
+  }
+
+  std::size_t size() const
+  {
+    return _cache_items_map.size();
+  }
+
+  std::size_t capacity() const
+  {
+    return _max_size;
+  }
+
+  void clear()
+  {
+    _cache_items_list.clear();
+    _cache_items_map.clear();
+  }
+
+private:
+  std::list<key_value_pair_t> _cache_items_list;
+  std::unordered_map<key_t, list_iterator_t> _cache_items_map;
+  std::size_t _max_size;
+};
+
+} // namespace detail
+
 template <typename Fn> class Memoized
 {
   Fn fn;
@@ -48,7 +196,7 @@ template <typename Fn> class Memoized
   using return_t = detail::return_t<fn_t>;
 
   // TODO replace by caching policy
-  lru_cache<std::size_t, return_t> cache{128};
+  detail::lru_cache<std::size_t, return_t> cache{128};
 
 public:
   using base_fn_t = Fn;

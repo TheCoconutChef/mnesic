@@ -1,6 +1,6 @@
 # Mnesic
 
-Dependency free, C++17 [memoization](https://en.wikipedia.org/wiki/Memoization) class. Basically just a [kata](http://codekata.com/).
+Dependency free, single header, C++17 [memoization](https://en.wikipedia.org/wiki/Memoization) class. Basically just a [kata](http://codekata.com/).
 
 ### Quick start
 
