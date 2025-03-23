@@ -3,7 +3,6 @@
 
 #include "detail/lru_cache.hpp"
 #include "detail/tuple_hash.hpp"
-#include <boost/callable_traits/args.hpp>
 #include <boost/callable_traits/return_type.hpp>
 
 #include <cstddef>
@@ -32,7 +31,7 @@ public:
     }
   }
 
-  template <typename... Args> return_t operator()(Args &&...args)
+  template <typename... Args> const return_t &operator()(Args &&...args)
   {
     // TODO: use args_t somehow to make sure that what would be implicitly converted
     // to U from T in the original function calls also gets implicitly converted in
@@ -53,9 +52,7 @@ public:
       return val_opt.value();
     }
 
-    auto res = fn(std::forward<Args>(args)...);
-    cache.put(h, res);
-    return res;
+    return cache.put(h, fn(std::forward<Args>(args)...));
   }
 
   void clear_cache()
@@ -63,7 +60,7 @@ public:
     return cache.clear();
   }
 
-  std::size_t record_count() const
+  std::size_t entry_count() const
   {
     return cache.size();
   }

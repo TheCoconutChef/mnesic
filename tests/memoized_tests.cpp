@@ -82,7 +82,7 @@ int main()
     mem_f(1, 1);
     mem_f(1, 1);
 
-    expect(that % mem_f.record_count() == 1u);
+    expect(that % mem_f.entry_count() == 1u);
     expect(that % foo.call_count == 1u);
   };
 
@@ -104,7 +104,7 @@ int main()
     mem_f(1, 1);
     mem_f(2, 2);
 
-    expect(that % 1 == mem_f.record_count());
+    expect(that % 1 == mem_f.entry_count());
     expect(that % 3 == foo.call_count);
   };
 
@@ -132,7 +132,7 @@ int main()
     expect(that % mem_free(1, 2) == free_func(1, 2));
     expect(that % mem_free(2, 3) == free_func(2, 3));
     mem_free(1, 2);
-    expect(that % mem_free.record_count() == 2u);
+    expect(that % mem_free.entry_count() == 2u);
   };
 
   "tuple hash identity"_test = []
@@ -151,7 +151,7 @@ int main()
     auto mem_fib = MemoizedFib();
     auto n       = mem_fib(5);
 
-    expect(mem_fib.memoized.record_count() == 5);
+    expect(mem_fib.memoized.entry_count() == 5);
     expect(n == fib(5));
   };
 

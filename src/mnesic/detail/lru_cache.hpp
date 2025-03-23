@@ -16,10 +16,11 @@ public:
   {
   }
 
-  void put(const key_t &key, const value_t &value)
+  const value_t &put(const key_t &key, const value_t &value)
   {
     auto it = _cache_items_map.find(key);
     _cache_items_list.push_front(key_value_pair_t(key, value));
+    const auto &ref = _cache_items_list.front().second;
     if (it != _cache_items_map.end())
     {
       _cache_items_list.erase(it->second);
@@ -29,11 +30,11 @@ public:
 
     if (_cache_items_map.size() > _max_size)
     {
-      auto last = _cache_items_list.end();
-      last--;
+      const auto last = std::prev(_cache_items_list.end());
       _cache_items_map.erase(last->first);
       _cache_items_list.pop_back();
     }
+    return ref;
   }
 
   std::optional<std::reference_wrapper<value_t>> safe_get(const key_t &key)
