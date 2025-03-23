@@ -5,7 +5,6 @@
 #include "detail/tuple_hash.hpp"
 #include <cstddef>
 #include <stdexcept>
-#include <type_traits>
 
 namespace detail
 {
