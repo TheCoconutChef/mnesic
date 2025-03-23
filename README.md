@@ -82,7 +82,8 @@ int main()
   fmt::println("naive_fib_call_count: {}", naive_fib_call_count);
 
   return 0;
-}```
+}
+```
 Output:
 ```
 MEM_F_20 = 6765
